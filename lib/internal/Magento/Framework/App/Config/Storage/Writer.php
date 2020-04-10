@@ -7,23 +7,31 @@
  */
 namespace Magento\Framework\App\Config\Storage;
 
+use Magento\Framework\App\Config\ConfigResource\ConfigInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Validator\ScopeValidator;
 
-class Writer implements \Magento\Framework\App\Config\Storage\WriterInterface
+class Writer implements WriterInterface
 {
     /**
      * Resource model of config data
      *
-     * @var \Magento\Framework\App\Config\ConfigResource\ConfigInterface
+     * @var ConfigInterface
      */
     protected $_resource;
 
     /**
-     * @param \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resource
+     * @var ScopeValidator
      */
-    public function __construct(\Magento\Framework\App\Config\ConfigResource\ConfigInterface $resource)
+    private $validator;
+
+    /**
+     * @param ConfigInterface $resource
+     */
+    public function __construct(ConfigInterface $resource, ScopeValidator $validator)
     {
         $this->_resource = $resource;
+        $this->validator = $validator;
     }
 
     /**
@@ -50,6 +58,7 @@ class Writer implements \Magento\Framework\App\Config\Storage\WriterInterface
      */
     public function save($path, $value, $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0)
     {
+        $this->validator->isScopeInRegistry($scope);
         $this->_resource->saveConfig(rtrim($path, '/'), $value, $scope, $scopeId);
     }
 }
